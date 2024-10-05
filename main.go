@@ -2,12 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file" // Import the file source driver
-	_ "github.com/lib/pq"                                // PostgreSQL driver
+	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq" // PostgreSQL driver
 	"log"
 	"net/http"
+	"os"
 	"quoteservice/handler"
 	"quoteservice/service"
 	"quoteservice/store"
@@ -15,7 +18,13 @@ import (
 
 func main() {
 	// Database connection
-	dataSourceName := "postgres://quoteuser:password@localhost:5432/quotemanager?sslmode=disable"
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dataSourceName := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		dbUsername, dbPassword, dbHost, dbPort, dbName)
 
 	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
@@ -48,7 +57,8 @@ func main() {
 	http.HandleFunc("/quotes", quoteHandler.CreateQuoteHandler)
 	http.HandleFunc("/quotes/list", quoteHandler.ListQuotesHandler)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	serverPort := os.Getenv("SERVER_PORT")
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }

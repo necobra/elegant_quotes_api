@@ -1,4 +1,18 @@
 services:
+  app:
+    build:
+      context: .
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    depends_on:
+      - postgres
+    networks:
+      - postgres-network
+
   postgres:
     image: postgres:latest
     environment:
@@ -8,7 +22,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT}:5432"
+      - ${DB_PORT}:${DB_PORT}
     networks:
       - postgres-network
 

@@ -55,7 +55,9 @@ func main() {
 	quoteHandler := handler.QuoteHandler{QuoteService: quoteService}
 
 	http.HandleFunc("/quotes", quoteHandler.CreateQuoteHandler)
+	http.HandleFunc("/quote", quoteHandler.RetrieveRandomQuoteHandler)
 	http.HandleFunc("/quotes/list", quoteHandler.ListQuotesHandler)
+	http.HandleFunc("/quote/delete", quoteHandler.DestroyQuoteHandler)
 
 	serverPort := os.Getenv("SERVER_PORT")
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil); err != nil {
